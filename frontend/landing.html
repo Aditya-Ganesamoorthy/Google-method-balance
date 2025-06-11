@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunface Tech Services</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: var(--dark);
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Splash Screen */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.8s ease;
+        }
+
+        .splash-screen.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .logo-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo-outer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .logo-inner {
+            position: absolute;
+            width: 70%;
+            height: 70%;
+            border-radius: 50%;
+            border: 5px solid white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: rotate 8s linear infinite;
+        }
+
+        .logo-inner i {
+            font-size: 3rem;
+            color: white;
+        }
+
+        .welcome-text {
+            text-align: center;
+            color: white;
+            max-width: 90%;
+        }
+
+        .welcome-text h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .welcome-text p {
+            font-size: 1.2rem;
+            font-weight: 300;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0%;
+            background: white;
+            border-radius: 3px;
+            transition: width 5s linear;
+        }
+
+        /* Main Content */
+        .container {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            animation: fadeIn 1s ease forwards;
+        }
+
+        header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 15px;
+            padding: 15px 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .brand-logo {
+            height: 70px;
+        }
+
+        .services-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .service-category {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .service-category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .category-header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-header h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+        }
+
+        .category-header::after {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .service-list {
+            padding: 20px;
+        }
+
+        .service-list ul {
+            list-style: none;
+        }
+
+        .service-list li {
+            padding: 12px 0;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .service-list li:hover {
+            transform: translateX(5px);
+            color: var(--secondary);
+        }
+
+        .service-list li:last-child {
+            border-bottom: none;
+        }
+
+        .service-list li a {
+            color: inherit;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            transition: var(--transition);
+        }
+
+        .service-list li a:hover {
+            color: var(--secondary);
+        }
+
+        .service-list li i {
+            color: var(--secondary);
+            margin-right: 12px;
+            font-size: 0.9rem;
+            min-width: 20px;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Button styles */
+        .login-btn {
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px 20px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+        }
+        
+        .login-btn:hover {
+            background: #27ae60;
+        }
+        
+        .login-btn i {
+            margin-right: 8px;
+        }
+        
+        .logout-btn {
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+        
+        .logout-btn i {
+            margin-right: 8px;
+        }
+        
+        /* Disabled links */
+        .disabled-link {
+            pointer-events: none;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .icon-buttons {
+            display: flex;
+            gap: 12px;
+            position: absolute;
+            right: 170px; /* adjust as needed */
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--dark);
+            font-size: 1.6rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .icon-btn:hover {
+            color: var(--secondary);
+        }
+
+        /* Profile Css*/ 
+
+        .profile-dropdown {
+            position: absolute;
+            top: 100px;
+            right: 30px;
+            width: 280px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            padding: 20px;
+            z-index: 999;
+            display: none;
+            transition: opacity 0.3s ease;
+            }
+
+            .profile-dropdown h3 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            }
+
+            .profile-dropdown .info {
+            margin-bottom: 10px;
+            font-size: 14px;
+            }
+
+            .profile-dropdown .info strong {
+            display: inline-block;
+            width: 120px;
+            color: #666;
+            }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .services-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-text h1 {
+                font-size: 2rem;
+            }
+            
+            .progress-bar {
+                width: 200px;
+            }
+            
+            .brand-logo {
+                height: 60px;
+            }
+            
+            .login-btn, .logout-btn {
+                position: static;
+                transform: none;
+                margin-top: 15px;
+            }
+            
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div class="splash-screen">
+        <div class="logo-container">
+            <div class="logo-outer"></div>
+            <div class="logo-inner">
+                <i class="fas fa-rocket"></i>
+            </div>
+        </div>
+        <div class="welcome-text">
+            <h1>Welcome to Sunface Tech Services!</h1>
+            <p>Professional IT solutions for your business growth</p>
+        </div>
+        <div class="progress-bar">
+            <div class="progress"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <header>
+            <img src="https://sunface.in/wp-content/uploads/2022/12/Sunface-Web-Final-logo_2-01-1.png" 
+                alt="Sunface Tech Services" class="brand-logo">  
+
+            <button id="loginBtn" class="login-btn">
+                <i class="fas fa-sign-in-alt"></i> Login Now
+            </button>
+            
+            <button id="logoutBtn" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button> 
+            
+            <div class="icon-buttons" id="userIcons" style="display: none;">
+                <button class="icon-btn" id="profileIcon"><i class="fas fa-user-circle"></i></button>
+                <button class="icon-btn" id="settingsIcon"><i class="fas fa-cog"></i></button>
+            </div>
+
+        </header>
+        
+        <!-- Profile Dropdown -->
+        <div id="profileDropdown" class="profile-dropdown">
+            <h3>User Profile</h3>
+            <div class="info"><strong>Name:</strong> <span id="userName">...</span></div>
+            <div class="info"><strong>Email:</strong> <span id="userEmail">...</span></div>
+            <div class="info"><strong>Phone:</strong> <span id="userPhone">...</span></div>
+            <div class="info"><strong>Login Method:</strong> <span id="loginMethod">...</span></div>
+        </div>
+
+
+        <div class="services-container">
+            <!-- Shopping Website Design -->
+            <div class="service-category">
+                <div class="category-header">
+                    <h2>Shopping Website Design</h2>
+                </div>
+                <div class="service-list">
+                    <ul>
+                        <li><a href="https://sunface.in/shopify-website-design/" class="disabled-link"><i class="fas fa-shopping-cart"></i> Shopify Website Design</a></li>
+                        <li><a href="https://sunface.in/magento-website-design/" class="disabled-link"><i class="fas fa-shopping-cart"></i> Magento Website Design</a></li>
+                        <li><a href="https://sunface.in/opencart-website-design/" class="disabled-link"><i class="fas fa-shopping-cart"></i> OpenCart Website Design</a></li>
+                        <li><a href="https://sunface.in/woocommerce-website-design/" class="disabled-link"><i class="fas fa-shopping-cart"></i> WooCommerce Website Design</a></li>
+                        <li><a href="https://sunface.in/custom-e-commerce-website-design/" class="disabled-link"><i class="fas fa-shopping-cart"></i> Custom E-Commerce Website Design</a></li>
+                        <li><a href="https://sunface.in/e-commerce-listing-services/" class="disabled-link"><i class="fas fa-shopping-cart"></i> E-Commerce Listing Services</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Business Website Design -->
+            <div class="service-category">
+                <div class="category-header">
+                    <h2>Business Website Design</h2>
+                </div>
+                <div class="service-list">
+                    <ul>
+                        <li><a href="https://sunface.in/website-design/" class="disabled-link"><i class="fas fa-briefcase"></i> Static Website Design</a></li>
+                        <li><a href="https://sunface.in/dynamic-website-design/" class="disabled-link"><i class="fas fa-briefcase"></i> Dynamic Website Design</a></li>
+                        <li><a href="https://sunface.in/landing-page-design/" class="disabled-link"><i class="fas fa-briefcase"></i> Landing Page Design</a></li>
+                        <li><a href="https://sunface.in/single-page-design/" class="disabled-link"><i class="fas fa-briefcase"></i> Single Page Design</a></li>
+                        <li><a href="https://sunface.in/multi-page-design/" class="disabled-link"><i class="fas fa-briefcase"></i> Multi Page Design</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Educational Website Design -->
+            <div class="service-category">
+                <div class="category-header">
+                    <h2>Educational Website Design</h2>
+                </div>
+                <div class="service-list">
+                    <ul>
+                        <li><a href="https://sunface.in/school-website-design/" class="disabled-link"><i class="fas fa-graduation-cap"></i> School Website Design</a></li>
+                        <li><a href="https://sunface.in/college-website-design/" class="disabled-link"><i class="fas fa-graduation-cap"></i> College Website Design</a></li>
+                        <li><a href="https://sunface.in/polytechnic-website-design/" class="disabled-link"><i class="fas fa-graduation-cap"></i> Polytechnic Website Design</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Mobile App Development -->
+            <div class="service-category">
+                <div class="category-header">
+                    <h2>Mobile App Development</h2>
+                </div>
+                <div class="service-list">
+                    <ul>
+                        <li><a href="https://sunface.in/android-app-development/" class="disabled-link"><i class="fas fa-mobile-alt"></i> Android App Development</a></li>
+                        <li><a href="https://sunface.in/ios-app-development/" class="disabled-link"><i class="fas fa-mobile-alt"></i> iOS App Development</a></li>
+                        <li><a href="https://sunface.in/hybrid-app-development/" class="disabled-link"><i class="fas fa-mobile-alt"></i> Hybrid App Development</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Web Development -->
+            <div class="service-category">
+                <div class="category-header">
+                    <h2>Web Development</h2>
+                </div>
+                <div class="service-list">
+                    <ul>
+                        <li><a href="https://sunface.in/web-application-development/" class="disabled-link"><i class="fas fa-code"></i> Web Application Development</a></li>
+                        <li><a href="https://sunface.in/custom-web-application-development/" class="disabled-link"><i class="fas fa-code"></i> Custom Web Application Development</a></li>
+                        <li><a href="https://sunface.in/erp-application-development/" class="disabled-link"><i class="fas fa-code"></i> ERP Application Development</a></li>
+                        <li><a href="https://sunface.in/software-development/" class="disabled-link"><i class="fas fa-code"></i> Software Development</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- SEO Services -->
+            <div class="service-category">
+                <div class="category-header">
+                    <h2>SEO Services</h2>
+                </div>
+                <div class="service-list">
+                    <ul>                        
+                        <li><a href="https://sunface.in/local-seo-service/" class="disabled-link"><i class="fas fa-chart-line"></i> Local SEO Service</a></li>
+                        <li><a href="https://sunface.in/on-page-seo-service/" class="disabled-link"><i class="fas fa-chart-line"></i> On-Page SEO Service</a></li>
+                        <li><a href="https://sunface.in/off-page-seo-service/" class="disabled-link"><i class="fas fa-chart-line"></i> Off-Page SEO Service</a></li>
+                        <li><a href="https://sunface.in/google-seo-service/" class="disabled-link"><i class="fas fa-chart-line"></i> Google SEO Service</a></li>
+                        <li><a href="https://sunface.in/digital-marketing-service/" class="disabled-link"><i class="fas fa-chart-line"></i> Digital Marketing Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Messaging Services -->
+            <div class="service-category">
+                <div class="category-header">
+                    <h2>Messaging Suite Services</h2>
+                </div>
+                <div class="service-list">
+                    <ul>
+                        <li><a href="#" class="disabled-link"><i class="fab fa-facebook-messenger"></i> Bulk WhatsApp Message Service </a></li>
+                        <li><a href="#" class="disabled-link"><i class="fab fa-facebook-messenger"></i> WhatsApp AI Chatbot Service</a></li>
+                        <li><a href="#" class="disabled-link"><i class="fab fa-facebook-messenger"></i> Blue Tick Verification Service</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Addon Services -->
+            <div class="service-category">
+                <div class="category-header">
+                    <h2>Addon Services</h2>
+                </div>
+                <div class="service-list">
+                    <ul>
+                        <li><a href="https://sunface.in/website-security/" class="disabled-link"><i class="fas fa-plus-circle"></i> Website Security</a></li>
+                        <li><a href="https://sunface.in/website-maintenance/" class="disabled-link"><i class="fas fa-plus-circle"></i> Website Maintenance</a></li>
+                        <li><a href="https://sunface.in/website-migration/" class="disabled-link"><i class="fas fa-plus-circle"></i> Website Migration</a></li>
+                        <li><a href="#" class="disabled-link"><i class="fas fa-plus-circle"></i> Website Hosting</a></li>
+                        <li><a href="#" class="disabled-link"><i class="fas fa-plus-circle"></i> Domain Registration</a></li>
+                        <li><a href="#" class="disabled-link"><i class="fas fa-plus-circle"></i> Payment Integration</a></li>
+                        <li><a href="#" class="disabled-link"><i class="fas fa-plus-circle"></i> Delivery Integration</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="login-prompt">
+            <div class="login-message">
+                <i class="fas fa-lock"></i>
+                <h3>Login Required</h3>
+                <p>Please log in to access all services and features</p>
+            </div>
+        </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const splashScreen = document.querySelector('.splash-screen');
+            const progressBar = document.querySelector('.progress');
+            const container = document.querySelector('.container');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const loginBtn = document.getElementById('loginBtn');
+            const serviceLinks = document.querySelectorAll('.service-list li a');
+            
+            // Check if user is logged in
+            function checkLoginStatus() {
+                const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+                
+                // Toggle buttons
+                logoutBtn.style.display = isLoggedIn ? 'block' : 'none';
+                loginBtn.style.display = isLoggedIn ? 'none' : 'block';
+                
+                const userIcons = document.getElementById('userIcons');
+                userIcons.style.display = isLoggedIn ? 'flex' : 'none';
+
+                // Toggle service links
+                serviceLinks.forEach(link => {
+                    if (isLoggedIn) {
+                        link.classList.remove('disabled-link');
+                    } else {
+                        link.classList.add('disabled-link');
+                    }
+                });
+                
+                // Show/hide login prompt
+                const loginPrompt = document.querySelector('.login-prompt');
+                loginPrompt.style.display = isLoggedIn ? 'none' : 'block';
+            }
+            
+            loginBtn.addEventListener('click', login);
+
+
+            function login(){
+                window.location.href = 'index.html';
+            }
+            
+            // Logout functionality
+            logoutBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to logout?')) {
+                    localStorage.setItem('isLoggedIn', 'false');
+                    checkLoginStatus();
+                }
+            });
+            
+            // Start the progress bar animation
+            progressBar.style.width = '100%';
+            
+            // Hide splash screen after 5 seconds
+            setTimeout(() => {
+                splashScreen.classList.add('hide');
+                
+                setTimeout(() => {
+                    container.style.display = 'block';
+                    checkLoginStatus();
+                    
+                    // Add link protection
+                    serviceLinks.forEach(link => {
+                        link.addEventListener('click', (e) => {
+                            if (localStorage.getItem('isLoggedIn') !== 'true') {
+                                e.preventDefault();
+                                alert('Please login to access this service');
+                            }
+                        });
+                    });
+                }, 800);
+            }, 5000);
+            
+            // Add hover effect to service categories
+            const categories = document.querySelectorAll('.service-category');
+            categories.forEach(category => {
+                category.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                category.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // Add hover effect to service items
+            const serviceItems = document.querySelectorAll('.service-list li');
+            serviceItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(5px)';
+                    this.style.color = 'var(--secondary)';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                    this.style.color = '';
+                });
+            });
+
+            const profileIcon = document.getElementById("profileIcon");
+            const profileDropdown = document.getElementById("profileDropdown");
+
+            // Fill profile data
+            const user = JSON.parse(localStorage.getItem("loggedInUser"));
+            const method = localStorage.getItem("loginMethod");
+
+            if (user) {
+            document.getElementById("userName").textContent = user.username || 'N/A';
+            document.getElementById("userEmail").textContent = user.email || 'N/A';
+            document.getElementById("userPhone").textContent = user.phone || 'N/A';
+            
+            let readable = "Unknown";
+            if (method === "password") readable = "ID-Password";
+            else if (method === "google") readable = "Continue with Google";
+            else if (method === "otp") readable = "Mobile OTP";
+            
+            document.getElementById("loginMethod").textContent = readable;
+            }
+
+            // Show/hide logic
+            let hideTimeout;
+
+            const showDropdown = () => {
+            clearTimeout(hideTimeout);
+            profileDropdown.style.display = "block";
+            };
+
+            const hideDropdown = () => {
+            hideTimeout = setTimeout(() => {
+                profileDropdown.style.display = "none";
+            }, 300); // short delay
+            };
+
+            // Show on hover or click
+            profileIcon.addEventListener("mouseenter", showDropdown);
+            profileIcon.addEventListener("click", showDropdown);
+            profileIcon.addEventListener("mouseleave", hideDropdown);
+
+            profileDropdown.addEventListener("mouseenter", showDropdown);
+            profileDropdown.addEventListener("mouseleave", hideDropdown);
+        
+        });
+         
+    </script>
+</body>
+</html>
