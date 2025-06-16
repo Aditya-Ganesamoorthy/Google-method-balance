@@ -337,31 +337,49 @@
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider)
         .then(result => {
-            const user = result.user;
-            localStorage.setItem("isLoggedIn", "true");
-            localStorage.setItem("loginMethod", "google");
-            localStorage.setItem("loggedInUser", JSON.stringify({
-              username: user.displayName,
-              email: user.email,
-              phone: user.phoneNumber
-            }));
-            window.location.href = "landing.html";
-          })
+          const user = result.user;
 
+          const userData = {
+            username: user.displayName || "Google User",
+            email: user.email || "",
+            phone: user.phoneNumber || "",
+            method: "google"
+          };
+
+          // Save to localStorage
+          localStorage.setItem('loggedInUser', JSON.stringify(userData));
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('loginMethod', 'google');
+
+          // Send user to backend to store in MongoDB
+          fetch("http://localhost:5000/api/auth/firebase", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(userData)
+          })
+          .then(res => res.json())
+          .then(data => {
+            localStorage.setItem('token', data.token); // ✅ Save token
+            alert("Google Sign-In successful");
+            window.location.href = "index.html";
+          });
+          
+        })
         .catch(error => {
           alert(error.message);
           console.error("Google Sign-In error:", error);
         });
-    }
+      }
 
     
     let confirmationResult;
 
     window.onload = () => {
-      // Setup reCAPTCHA
       window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier("recaptcha-container", {
         size: "normal",
-        callback: (response) => {
+        callback: () => {
           console.log("reCAPTCHA solved");
         },
         "expired-callback": () => {
@@ -369,17 +387,14 @@
         }
       });
 
-      // Render reCAPTCHA widget
       recaptchaVerifier.render().then((widgetId) => {
         window.recaptchaWidgetId = widgetId;
       });
-      
-      // Hide OTP section initially
+
       document.getElementById("otp-section").style.display = "none";
       document.getElementById("otp-container").style.display = "none";
     };
 
-    // Function to send OTP
     function sendOTP() {
       const phone = document.getElementById("mobile").value.trim();
 
@@ -402,109 +417,208 @@
         });
     }
 
-    // Function to verify OTP
-    function verifyOTP() {
-        const code = document.getElementById("otp").value.trim();
+  /*function verifyOTP() {
+    const code = document.getElementById("otp").value.trim();
 
-        if (!code) {
-          alert("Please enter the OTP");
-          return;
-        }
+    if (!code) {
+      alert("Please enter the OTP");
+      return;
+    }
 
-        confirmationResult.confirm(code)
-          .then(result => {
-              const user = result.user;
-              localStorage.setItem("isLoggedIn", "true");
-              localStorage.setItem("loginMethod", "otp");
-              localStorage.setItem("loggedInUser", JSON.stringify({
-                username: user.phoneNumber, // or some static name
-                email: "Not linked",
-                phone: user.phoneNumber
-              }));
-              window.location.href = "landing.html";
+    confirmationResult.confirm(code)
+      .then((result) => {
+        const phone = result.user.phoneNumber;
+
+        // Save to backend
+        fetch("http://localhost:5000/api/auth/firebase/phone-login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ phone }),
+        })
+        .then(res => res.json())
+        .then(data => {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("loggedInUser", JSON.stringify({
+            username: data.user.username,
+            email: "", // No email from phone login
+            phone: data.user.phone
+            
+          }));
+          localStorage.setItem("loginMethod", "otp");
+          localStorage.setItem("isLoggedIn", "true");
+          document.getElementById("message").innerText = `✅ Logged in as ${phone}`;
+          document.getElementById("message").style.color = "#4CAF50";
+          
+          alert("Mobile Login Successful!!");
+          window.location.href = "index.html";
+        })
+        .catch(error => {
+          console.error("Error storing Firebase phone user:", error);
+          alert("Login successful, but server error while saving user.");
+        });
+      })
+      .catch((error) => {
+        console.error("OTP Verification Error:", error);
+        document.getElementById("message").innerText = "Invalid OTP. Please try again.";
+        document.getElementById("message").style.color = "#F44336";
+      });
+  }
+*/
+
+  function verifyOTP() {
+    const code = document.getElementById("otp").value.trim();
+
+    if (!code) {
+        alert("Please enter the OTP");
+        return;
+    }
+
+    confirmationResult.confirm(code)
+        .then((result) => {
+            const phone = result.user.phoneNumber;
+            
+            // First check if phone exists in any account
+            fetch("http://localhost:5000/api/auth/find-user-by-phone", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ phone })
             })
-
-          .catch((error) => {
+            .then(res => res.json())
+            .then(data => {
+                if (data.user) {
+                    // Existing user found - log them in
+                    localStorage.setItem("token", data.token);
+                    localStorage.setItem("loggedInUser", JSON.stringify({
+                        username: data.user.username,
+                        email: data.user.email || "",
+                        phone: data.user.phone
+                    }));
+                    localStorage.setItem("loginMethod", data.user.method || "otp");
+                    localStorage.setItem("isLoggedIn", "true");
+                    
+                    document.getElementById("message").innerText = `✅ Logged in as ${data.user.username}`;
+                    document.getElementById("message").style.color = "#4CAF50";
+                    
+                    alert("Mobile Login Successful!");
+                    window.location.href = "index.html";
+                } else {
+                    // No existing user - create new account
+                    fetch("http://localhost:5000/api/auth/firebase/phone-login", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ phone })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        localStorage.setItem("token", data.token);
+                        localStorage.setItem("loggedInUser", JSON.stringify({
+                            username: data.user.username,
+                            email: data.user.email || "",
+                            phone: data.user.phone
+                        }));
+                        localStorage.setItem("loginMethod", "otp");
+                        localStorage.setItem("isLoggedIn", "true");
+                        
+                        document.getElementById("message").innerText = `✅ Created new account for ${phone}`;
+                        document.getElementById("message").style.color = "#4CAF50";
+                        
+                        alert("Account Created Successfully!");
+                        window.location.href = "index.html";
+                    })
+                    .catch(error => {
+                        console.error("Error creating new user:", error);
+                        alert("Error creating new account");
+                    });
+                }
+            })
+            .catch(error => {
+                console.error("Phone lookup error:", error);
+                alert("Error checking phone number");
+            });
+        })
+        .catch((error) => {
             console.error("OTP Verification Error:", error);
             document.getElementById("message").innerText = "Invalid OTP. Please try again.";
             document.getElementById("message").style.color = "#F44336";
-          });
+        });
       }
 
-    
-    function showOtpContainer() {
-      document.getElementById('signInButton').style.display = 'none';
-      document.getElementById('otp-container').style.display = 'block';
-    }
+  function showOtpContainer() {
+    document.getElementById('signInButton').style.display = 'none';
+    document.getElementById('otp-container').style.display = 'block';
+  }
 
     document.getElementById("loginForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
+    e.preventDefault();
 
-      const identifier = document.getElementById("identifier").value.trim();
-      const password = document.getElementById("password").value;
+  const identifier = document.getElementById("identifier").value.trim();
+  const password = document.getElementById("password").value;
 
-      if (!identifier || !password) {
-        alert("Please fill in both fields.");
-        return;
-      }
+  if (!identifier || !password) {
+    alert("Please fill in both fields.");
+    return;
+  }
 
-      try {
-        const res = await fetch("http://localhost:5000/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ identifier, password }),
-        });
-
-        const data = await res.json();
-        if (!res.ok) {
-          alert(data.message || "Login failed");
-          return;
-        }
-
-        // ✅ Login successful – store flag and redirect
-        localStorage.setItem('isLoggedIn', 'true');
-        alert("Login successful!");
-        window.location.href = "landing.html";  // ✅ This is the actual redirect
-
-      } catch (err) {
-        console.error("Login error:", err);
-        alert("Something went wrong. Please try again.");
-      }
+  try {
+    const res = await fetch("https://sunface-backend.onrender.com/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ identifier, password }),
     });
 
-    
-    // Toggle password visibility
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "Login failed");
+      return;
+    }
+
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("loginMethod", "password");
+    localStorage.setItem("token", data.token); 
+    // Store user details using data.user object
+    localStorage.setItem("loggedInUser", JSON.stringify({
+      username: data.user.username,  // Changed from data.username
+      email: data.user.email,        // Changed from data.email
+      phone: data.user.phone         // Changed from data.phone
+    }));
+
+    alert("Login successful!");
+    window.location.href = "index.html";
+
+  } catch (err) {
+    console.error("Login error:", err);
+    alert("Something went wrong. Please try again.");
+  }
+});
+
     function togglePassword() {
-      const passwordField = document.getElementById('password');
-      const eyeIcon = document.querySelector('.password-toggle i');
-      
-      if (passwordField.type === 'password') {
-        passwordField.type = 'text';
-        eyeIcon.classList.remove('fa-eye');
-        eyeIcon.classList.add('fa-eye-slash');
-      } else {
-        passwordField.type = 'password';
-        eyeIcon.classList.remove('fa-eye-slash');
-        eyeIcon.classList.add('fa-eye');
-      }
+      const passwordField = document.getElementById("password");
+      const eyeIcon = document.getElementById("eyeIcon");
+
+      const isVisible = passwordField.type === "text";
+      passwordField.type = isVisible ? "password" : "text";
+      eyeIcon.src = isVisible 
+        ? "https://img.icons8.com/ios-glyphs/30/000000/visible--v1.png"
+        : "https://img.icons8.com/ios-glyphs/30/000000/closed-eye.png";
     }
 
     function redirectToLanding() {
-    window.location.href = "landing.html";
+    window.location.href = "index.html";
   }
 
   // Modify all login success handlers:
   
   // Email/password login
   if (res.ok) {
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("loginMethod", "password");
-    localStorage.setItem("loggedInUser", JSON.stringify({
-      username: data.user.username,
-      email: data.user.email,
-      phone: data.user.phone
-    }));
-    window.location.href = "landing.html";
+    localStorage.setItem('isLoggedIn', 'true');
+    redirectToLanding();
   }
 
   // Google login
@@ -519,10 +633,10 @@
     redirectToLanding();
   });
 
-  // Redirect if already logged in
+  /* Redirect if already logged in
     if (localStorage.getItem('isLoggedIn') === 'true') {
       window.location.href = 'landing.html';
-    }
+    }*/
 
   </script>
 </body>

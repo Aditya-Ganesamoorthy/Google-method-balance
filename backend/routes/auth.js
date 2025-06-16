@@ -190,6 +190,7 @@ router.post('/forgot-password/reset', async (req, res) => {
 });
 
 // ===================== 🔹 Store Firebase Authenticated User =====================
+
 router.post('/firebase', async (req, res) => {
   try {
     const { username, email, phone, method } = req.body;
@@ -198,22 +199,53 @@ router.post('/firebase', async (req, res) => {
       return res.status(400).json({ message: 'Email or phone number required' });
     }
 
-    // Avoid duplicate users (match by email or phone)
+    // Check if the user already exists
     const existingUser = await User.findOne({ $or: [{ email }, { phone }] });
-    if (existingUser) return res.status(200).json({ message: 'User already exists' });
 
+    if (existingUser) {
+      // ✅ Optionally generate and return a token for existing user
+      
+      const token = jwt.sign({ id: existingUser._id }, JWT_SECRET, { expiresIn: '1h' });
+
+      return res.status(200).json({
+        message: 'User already exists',
+        token,
+        user: {
+          username: existingUser.username,
+          email: existingUser.email,
+          phone: existingUser.phone,
+          method: existingUser.method
+        }
+      });
+    }
+
+    // Create new user
     const newUser = new User({ username, email, phone, method });
     await newUser.save();
 
-    res.status(201).json({ message: 'Firebase user saved successfully' });
+    // ✅ Generate JWT token
+    const token = jwt.sign({ id: newUser._id }, JWT_SECRET, { expiresIn: '1h' });
+
+    res.status(201).json({
+      message: 'Firebase user saved successfully',
+      token,
+      user: {
+        username: newUser.username,
+        email: newUser.email,
+        phone: newUser.phone,
+        method: newUser.method
+      }
+    });
   } catch (err) {
     console.error("Error saving Firebase user:", err);
     res.status(500).json({ message: 'Error saving Firebase user' });
   }
 });
 
-module.exports = router;
+
 // 🔹 Save Firebase Phone Auth User
+
+
 router.post('/firebase/phone-login', async (req, res) => {
   const { phone } = req.body;
 
@@ -225,15 +257,18 @@ router.post('/firebase/phone-login', async (req, res) => {
       user = new User({
         username: generatedUsername,
         phone,
-        email: '',         // Optional
         password: '',      // Optional
-        method: 'otp',     // Add this if you use "method" in schema
+        method: 'otp',     // If using a method field
       });
       await user.save();
     }
 
+    // ✅ Generate JWT token
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+
     res.json({
       message: 'User stored successfully',
+      token,
       user: {
         username: user.username,
         phone: user.phone,
@@ -245,3 +280,314 @@ router.post('/firebase/phone-login', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+
+//// ###### VERIFY MY TOKEN OF LOGIN ##############
+
+function verifyToken(req, res, next) {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ message: 'No token provided' });
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({ message: 'Invalid token' });
+        }
+        req.user = decoded;
+        next();
+    });
+}
+
+//// ###### CHANGE MY NAME CODE ##############
+
+router.put('/update-profile', async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).json({ message: 'No token provided' });
+        }
+
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.id;
+
+        const updateData = req.body;
+
+        if (!updateData.username || updateData.username.trim().length < 3) {
+            return res.status(400).json({ message: 'Username must be at least 3 characters' });
+        }
+
+        const existingUser = await User.findOne({ 
+            username: updateData.username, 
+            _id: { $ne: userId } 
+        });
+
+        if (existingUser) {
+            return res.status(400).json({ message: 'Username is already taken' });
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { $set: updateData },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const { password, ...userData } = updatedUser.toObject();
+        return res.status(200).json({ message: 'Profile updated', user: userData });
+
+    } catch (err) {
+        console.error('Profile update error:', err);
+
+        if (err.name === 'JsonWebTokenError') {
+            return res.status(401).json({ message: 'Invalid token' });
+        }
+
+        if (err.name === 'TokenExpiredError') {
+            return res.status(401).json({ message: 'Token expired' });
+        }
+
+        return res.status(500).json({ message: 'Server error during profile update' });
+    }
+});
+
+//// ###### UPDATE MY MAIL ID ##############
+
+const updateEmailOtpStore = {};  
+
+router.post('/update-email/request-otp', verifyToken, async (req, res) => {
+    const { newEmail } = req.body;
+    const userId = req.user.id;
+
+    try {
+        // Validate email format
+        if (!isValidEmail(newEmail)) {
+            return res.status(400).json({ message: 'Invalid email format' });
+        }
+
+        // Check if email is already used
+        const existingUser = await User.findOne({ email: newEmail });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Email already in use' });
+        }
+
+        // Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        updateEmailOtpStore[userId] = { 
+            otp, 
+            newEmail,
+            expires: Date.now() + 5 * 60 * 1000 // 5 minutes
+        };
+
+        // Send OTP via email
+        await sendOTPEmail(newEmail, otp);
+        res.json({ message: 'OTP sent to your new email' });
+    } catch (err) {
+        console.error('Email update OTP error:', err);
+        res.status(500).json({ message: 'Error sending OTP' });
+    }
+});
+
+// 🔹 Verify OTP and update email
+router.post('/update-email/verify-otp', verifyToken, async (req, res) => {
+    const { otp, newEmail } = req.body;
+    const userId = req.user.id;
+
+    try {
+        const record = updateEmailOtpStore[userId];
+        if (!record) {
+            return res.status(400).json({ message: 'No OTP request found' });
+        }
+
+        if (Date.now() > record.expires) {
+            delete updateEmailOtpStore[userId];
+            return res.status(400).json({ message: 'OTP expired' });
+        }
+
+        if (record.otp !== otp) {
+            return res.status(400).json({ message: 'Invalid OTP' });
+        }
+
+        // 🔐 Check if this new email is already used by some other user
+        const alreadyUsed = await User.findOne({ email: newEmail, _id: { $ne: userId } });
+        if (alreadyUsed) {
+            return res.status(400).json({ message: 'Email already in use' });
+        }
+
+        // ✅ Now update email in DB
+        const user = await User.findByIdAndUpdate(
+            userId,
+            { email: newEmail },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        delete updateEmailOtpStore[userId];
+
+        res.json({
+            message: 'Email updated successfully',
+            user: {
+                email: user.email,
+                username: user.username,
+                phone: user.phone
+            }
+        });
+
+    } catch (err) {
+        console.error('Email update error:', err);
+        res.status(500).json({ message: 'Error updating email' });
+    }
+});
+
+// ##### CHANGE/UPDATE PASSWORD #####
+
+router.put('/update-password', verifyToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { currentPassword, newPassword } = req.body;
+
+        // Validate new password
+        if (!newPassword || newPassword.length < 8) {
+            return res.status(400).json({ message: 'Password must be at least 8 characters' });
+        }
+
+        // Find user
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // For password users, verify current password
+        if (user.method === 'password') {
+            if (!currentPassword) {
+                return res.status(400).json({ message: 'Current password is required' });
+            }
+            
+            const isMatch = await bcrypt.compare(currentPassword, user.password);
+            if (!isMatch) {
+                return res.status(400).json({ message: 'Current password is incorrect' });
+            }
+        }
+
+        if (!user.method) {
+            user.method = 'password'; // fallback if user created without method
+        }
+
+        // Hash and save new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        
+        await user.save();
+
+        res.json({ 
+            message: 'Password updated successfully',
+            user: {
+                username: user.username,
+                email: user.email,
+                phone: user.phone
+            }
+        });
+    } catch (err) {
+        console.error('Password update error:', err);
+        
+        if (err.name === 'JsonWebTokenError') {
+            return res.status(401).json({ message: 'Invalid token' });
+        }
+
+        res.status(500).json({ message: 'Server error during password update' });
+    }
+});
+
+// ===================== UPDATE PHONE NUMBER =====================
+router.put('/update-phone', verifyToken, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { phone } = req.body;
+
+        // Validate phone format for India
+        if (!phone || !/^\+91\d{10}$/.test(phone)) {
+            return res.status(400).json({ 
+                message: 'Phone number must be in +91 format followed by 10 digits (e.g. +911234567890)' 
+            });
+        }
+
+        // Check if phone is already used by another account
+        const existingUser = await User.findOne({ 
+            $or: [
+                { phone: phone },
+                { email: phone }, // Also check if used as email
+                { username: phone } // Also check if used as username
+            ],
+            _id: { $ne: userId } 
+        });
+
+        if (existingUser) {
+            return res.status(400).json({ 
+                message: 'Phone number is already associated with another account' 
+            });
+        }
+
+        // Update phone number
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { phone: phone },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Return updated user info (without password)
+        const { password, ...userData } = updatedUser.toObject();
+        return res.status(200).json({ 
+            message: 'Phone number updated successfully',
+            user: userData
+        });
+
+    } catch (err) {
+        console.error('Phone update error:', err);
+        return res.status(500).json({ message: 'Server error during phone update' });
+    }
+});
+
+// ===================== FIND USER BY PHONE =====================
+router.post('/find-user-by-phone', async (req, res) => {
+    try {
+        const { phone } = req.body;
+        
+        // Find user by phone across all login methods
+        const user = await User.findOne({ phone });
+        
+        if (user) {
+            // Generate token
+            const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+            
+            return res.json({
+                user: {
+                    _id: user._id,
+                    username: user.username,
+                    email: user.email,
+                    phone: user.phone,
+                    method: user.method
+                },
+                token
+            });
+        }
+        
+        // Return empty if not found
+        res.json({ user: null });
+    } catch (err) {
+        console.error('Find user error:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+module.exports = router;

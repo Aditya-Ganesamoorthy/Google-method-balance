@@ -33,102 +33,6 @@
             position: relative;
         }
 
-        /* Splash Screen */
-        .splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 1;
-            transition: opacity 0.8s ease;
-        }
-
-        .splash-screen.hide {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .logo-container {
-            position: relative;
-            width: 180px;
-            height: 180px;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .logo-outer {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 5px solid rgba(255, 255, 255, 0.2);
-            animation: pulse 2s infinite;
-        }
-
-        .logo-inner {
-            position: absolute;
-            width: 70%;
-            height: 70%;
-            border-radius: 50%;
-            border: 5px solid white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            animation: rotate 8s linear infinite;
-        }
-
-        .logo-inner i {
-            font-size: 3rem;
-            color: white;
-        }
-
-        .welcome-text {
-            text-align: center;
-            color: white;
-            max-width: 90%;
-        }
-
-        .welcome-text h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 15px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        .welcome-text p {
-            font-size: 1.2rem;
-            font-weight: 300;
-            max-width: 600px;
-            line-height: 1.6;
-        }
-
-        .progress-bar {
-            width: 300px;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-            margin-top: 30px;
-            overflow: hidden;
-        }
-
-        .progress {
-            height: 100%;
-            width: 0%;
-            background: white;
-            border-radius: 3px;
-            transition: width 5s linear;
-        }
-
         /* Main Content */
         .container {
             display: none;
@@ -314,23 +218,20 @@
         .logout-btn i {
             margin-right: 8px;
         }
-        
+
+        .login-message{
+            margin-left: 10px;
+            justify-items:center;
+        }
+
         /* Disabled links */
         .disabled-link {
-            pointer-events: none;
+            /*pointer-events: none;*/
             opacity: 0.6;
             cursor: not-allowed;
         }
 
-        .icon-buttons {
-            display: flex;
-            gap: 12px;
-            position: absolute;
-            right: 170px; /* adjust as needed */
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
+        /* Profile and Icon Css*/ 
 
         .icon-btn {
             background: transparent;
@@ -338,48 +239,311 @@
             color: var(--dark);
             font-size: 1.6rem;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: var(--transition);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
 
         .icon-btn:hover {
-            color: var(--secondary);
+            color: white;
+            background: var(--secondary);
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
         }
 
-        /* Profile Css*/ 
+        .icon-btn i {
+            transition: transform 0.3s ease;
+        }
 
+        .icon-btn:hover i {
+            transform: scale(1.1);
+        }
+
+        .icon-buttons{
+            
+            display: flex;
+            gap: 20px;
+            position: absolute;
+            right: 170px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Updated Profile Dropdown */
         .profile-dropdown {
             position: absolute;
-            top: 100px;
+            top: 85px; /* Adjusted position */
             right: 30px;
-            width: 280px;
+            width: 300px;
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            padding: 0;
             z-index: 999;
             display: none;
-            transition: opacity 0.3s ease;
-            }
+            overflow: hidden;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateY(10px);
+            opacity: 0;
+        }
 
-            .profile-dropdown h3 {
-            margin-top: 0;
-            font-size: 18px;
-            color: #2c3e50;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
+        .profile-dropdown.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .profile-header h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+
+        .profile-body {
+            padding: 20px;
+        }
+
+        .info-row {
+            display: flex;
             margin-bottom: 15px;
-            }
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f5ff;
+            transition: var(--transition);
+            align-items: flex-start;
+        }
 
-            .profile-dropdown .info {
-            margin-bottom: 10px;
-            font-size: 14px;
-            }
+        .info-row:hover {
+            transform: translateX(5px);
+            border-color: var(--secondary);
+        }
 
-            .profile-dropdown .info strong {
-            display: inline-block;
+        .info-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .info-label {
             width: 120px;
-            color: #666;
-            }
+            color: #7f8c8d;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .info-value {
+            flex: 1;
+            color: #2c3e50;
+            font-weight: 500;
+            text-align: right;
+            font-size: 0.95rem;
+        }
+
+        /* Added dropdown arrow */
+        .profile-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            transform: rotate(45deg);
+            z-index: -1;
+            box-shadow: -2px -2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Indicator for incomplete profile */
+        .indicator {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            animation: blink 1.5s infinite;
+        }
+
+        .item-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 8px;
+            line-height: 20px;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        /* Settings Dropdown */
+        .settings-dropdown {
+            position: absolute;
+            top: 85px;
+            right: 30px;
+            width: 300px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            padding: 0;
+            z-index: 999;
+            display: none;
+            overflow: hidden;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateY(10px);
+            opacity: 0;
+        }
+
+        .settings-dropdown.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .settings-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .settings-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+
+        .settings-header h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .settings-body {
+            padding: 15px 0;
+        }
+
+        .settings-list {
+            list-style: none;
+        }
+
+        .settings-list li {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f0f5ff;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .settings-list li:last-child {
+            border-bottom: none;
+        }
+
+        .settings-list li:hover {
+            background-color: #f8f9fa;
+        }
+
+        .settings-list li i {
+            width: 30px;
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+        
+        .setting-content {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .setting-text {
+            flex: 1;
+        }
+
+        .settings-list li a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .settings-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            transform: rotate(45deg);
+            z-index: -1;
+            box-shadow: -2px -2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .disabled-setting {
+            cursor: not-allowed;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .settings-list .setting-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
 
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -409,26 +573,17 @@
                 flex-direction: column;
                 text-align: center;
             }
+
+            .settings-dropdown, .profile-dropdown {
+                width: 280px;
+                right: 15px;
+            }
         }
     </style>
+
 </head>
+
 <body>
-    <!-- Splash Screen -->
-    <div class="splash-screen">
-        <div class="logo-container">
-            <div class="logo-outer"></div>
-            <div class="logo-inner">
-                <i class="fas fa-rocket"></i>
-            </div>
-        </div>
-        <div class="welcome-text">
-            <h1>Welcome to Sunface Tech Services!</h1>
-            <p>Professional IT solutions for your business growth</p>
-        </div>
-        <div class="progress-bar">
-            <div class="progress"></div>
-        </div>
-    </div>
 
     <!-- Main Content -->
     <div class="container">
@@ -443,22 +598,106 @@
             <button id="logoutBtn" class="logout-btn">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </button> 
-            
-            <div class="icon-buttons" id="userIcons" style="display: none;">
+
+             <div class="icon-buttons" id="userIcons" style="display: none;">
                 <button class="icon-btn" id="profileIcon"><i class="fas fa-user-circle"></i></button>
-                <button class="icon-btn" id="settingsIcon"><i class="fas fa-cog"></i></button>
+                <button class="icon-btn" id="settingsIcon">
+                    <i class="fas fa-cog"></i>
+                    <span class="indicator" id="settingsIndicator" style="display: none;">!</span>
+                </button>
             </div>
 
         </header>
+
+        <div class="login-prompt">
+            <div class="login-message">
+                <i class="fas fa-lock"></i>
+                <h3>Login Required</h3>
+                <p>Please log in to access all services and features <br></br></p>
+            </div>
+        </div>
         
         <!-- Profile Dropdown -->
         <div id="profileDropdown" class="profile-dropdown">
-            <h3>User Profile</h3>
-            <div class="info"><strong>Name:</strong> <span id="userName">...</span></div>
-            <div class="info"><strong>Email:</strong> <span id="userEmail">...</span></div>
-            <div class="info"><strong>Phone:</strong> <span id="userPhone">...</span></div>
-            <div class="info"><strong>Login Method:</strong> <span id="loginMethod">...</span></div>
+            <div class="profile-header">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h3 id="welcomeUser">Welcome</h3>
+            </div>
+            <div class="profile-body">
+                <div class="info-row">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value" id="userName">...</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value" id="userEmail">...</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Phone:</span>
+                    <span class="info-value" id="userPhone">...</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Login Method:</span>
+                    <span class="info-value" id="loginMethod">...</span>
+                </div>
+
+                <div class = info-row>
+                    <span class= "info-package"> Packages (Coming Soon!) </span> 
+                </div>
+            </div>
         </div>
+
+        <!-- Settings Dropdown -->
+        <div id="settingsDropdown" class="settings-dropdown">
+        <div class="settings-header">
+            <div class="settings-avatar">
+                <i class="fas fa-cog"></i>
+            </div>
+            <h3>Account Settings</h3>
+        </div>
+        <div class="settings-body">
+            <ul class="settings-list">
+                <li id="nameSetting">
+                    <a href="change_name.html" class="setting-link">
+                        <div class="setting-content">
+                            <i class="fas fa-user-edit"></i>
+                            <div class="setting-text">Change my name</div>
+                            <span class="item-indicator" id="nameIndicator" style="display: none;">!</span>
+                        </div>
+                    </a>
+                </li>
+                <li id="emailSetting">
+                    <a href="update_email.html" class="setting-link">
+                        <div class="setting-content">
+                            <i class="fas fa-envelope"></i>
+                            <div class="setting-text">Update my mail id</div>
+                            <span class="item-indicator" id="emailIndicator" style="display: none;">!</span>
+                        </div>
+                    </a>
+                </li>
+                <li id="passwordSetting">
+                    <a href="change_password.html" class="setting-link">
+                        <div class="setting-content">
+                            <i class="fas fa-key"></i>
+                            <div class="setting-text">Change my Password</div>
+                            <span class="item-indicator" id="passwordIndicator" style="display: none;">!</span>
+                        </div>
+                    </a>
+                </li>
+                <li id="phoneSetting">
+                    <a href="update_phone.html" class="setting-link">
+                        <div class="setting-content">
+                            <i class="fas fa-phone"></i>
+                            <div class="setting-text">Update my Phone Number</div>
+                            <span class="item-indicator" id="phoneIndicator" style="display: none;">!</span>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
 
 
         <div class="services-container">
@@ -586,23 +825,17 @@
                 </div>
             </div>
         </div>
-        
-        <div class="login-prompt">
-            <div class="login-message">
-                <i class="fas fa-lock"></i>
-                <h3>Login Required</h3>
-                <p>Please log in to access all services and features</p>
-            </div>
-        </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const splashScreen = document.querySelector('.splash-screen');
-            const progressBar = document.querySelector('.progress');
             const container = document.querySelector('.container');
             const logoutBtn = document.getElementById('logoutBtn');
             const loginBtn = document.getElementById('loginBtn');
             const serviceLinks = document.querySelectorAll('.service-list li a');
+            
+            // Initialize the page
+            container.style.display = 'block';
+            checkLoginStatus();
             
             // Check if user is logged in
             function checkLoginStatus() {
@@ -624,6 +857,7 @@
                     }
                 });
                 
+                
                 // Show/hide login prompt
                 const loginPrompt = document.querySelector('.login-prompt');
                 loginPrompt.style.display = isLoggedIn ? 'none' : 'block';
@@ -631,41 +865,29 @@
             
             loginBtn.addEventListener('click', login);
 
-
             function login(){
-                window.location.href = 'index.html';
+                window.location.href = 'login.html';
             }
             
             // Logout functionality
             logoutBtn.addEventListener('click', () => {
                 if (confirm('Are you sure you want to logout?')) {
                     localStorage.setItem('isLoggedIn', 'false');
+                    localStorage.clear();
                     checkLoginStatus();
                 }
             });
-            
-            // Start the progress bar animation
-            progressBar.style.width = '100%';
-            
-            // Hide splash screen after 5 seconds
-            setTimeout(() => {
-                splashScreen.classList.add('hide');
-                
-                setTimeout(() => {
-                    container.style.display = 'block';
-                    checkLoginStatus();
-                    
-                    // Add link protection
-                    serviceLinks.forEach(link => {
-                        link.addEventListener('click', (e) => {
-                            if (localStorage.getItem('isLoggedIn') !== 'true') {
-                                e.preventDefault();
-                                alert('Please login to access this service');
-                            }
-                        });
-                    });
-                }, 800);
-            }, 5000);
+
+            // Add link protection
+            serviceLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (localStorage.getItem('isLoggedIn') !== 'true') {
+                        e.preventDefault();
+                        alert('Please login to access this service');
+                        return false;
+                    }
+                });
+            });
             
             // Add hover effect to service categories
             const categories = document.querySelectorAll('.service-category');
@@ -700,6 +922,10 @@
             const user = JSON.parse(localStorage.getItem("loggedInUser"));
             const method = localStorage.getItem("loginMethod");
 
+            if (user && !user.username && user.email) {
+            user.username = user.email.split('@')[0];
+            }
+           
             if (user) {
             document.getElementById("userName").textContent = user.username || 'N/A';
             document.getElementById("userEmail").textContent = user.email || 'N/A';
@@ -707,24 +933,31 @@
             
             let readable = "Unknown";
             if (method === "password") readable = "ID-Password";
-            else if (method === "google") readable = "Continue with Google";
+            else if (method === "google") readable = "Google Accounts";
             else if (method === "otp") readable = "Mobile OTP";
             
             document.getElementById("loginMethod").textContent = readable;
+            document.getElementById("welcomeUser").textContent = `Welcome ${user.username || ''} 🎉`;
             }
 
             // Show/hide logic
             let hideTimeout;
 
             const showDropdown = () => {
-            clearTimeout(hideTimeout);
-            profileDropdown.style.display = "block";
+                clearTimeout(hideTimeout);
+                const dropdown = document.getElementById("profileDropdown");
+                dropdown.style.display = "block";
+                setTimeout(() => {
+                    dropdown.classList.add("active");
+                }, 10);
             };
 
             const hideDropdown = () => {
-            hideTimeout = setTimeout(() => {
-                profileDropdown.style.display = "none";
-            }, 300); // short delay
+                const dropdown = document.getElementById("profileDropdown");
+                dropdown.classList.remove("active");
+                hideTimeout = setTimeout(() => {
+                    dropdown.style.display = "none";
+                }, 300);
             };
 
             // Show on hover or click
@@ -735,6 +968,146 @@
             profileDropdown.addEventListener("mouseenter", showDropdown);
             profileDropdown.addEventListener("mouseleave", hideDropdown);
         
+
+            // Settings dropdown functionality
+            const settingsIcon = document.getElementById("settingsIcon");
+            const settingsDropdown = document.getElementById("settingsDropdown");
+            const settingsIndicator = document.getElementById("settingsIndicator");
+            
+            /* Mock user data with missing information
+            const mockUser = {
+                username: "John Doe",
+                email: "N/A",
+                phone: "555-1234",
+                loginMethod: "google"
+            };
+            
+            // Store mock user data in localStorage
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('loggedInUser', JSON.stringify(mockUser));
+            localStorage.setItem('loginMethod', mockUser.loginMethod);*/
+
+            function checkProfileData() {
+                const userName = document.getElementById('userName').textContent;
+                const userEmail = document.getElementById('userEmail').textContent;
+                const userPhone = document.getElementById('userPhone').textContent;
+                
+                // Check if any data is missing
+                const isNameMissing = userName === 'N/A' || userName === '...';
+                const isEmailMissing = userEmail === 'N/A' || userEmail === '...';
+                const isPhoneMissing = userPhone === 'N/A' || userPhone === '...';
+                
+                // Show/hide main settings indicator
+                if (isNameMissing || isEmailMissing || isPhoneMissing) {
+                    settingsIndicator.style.display = 'flex';
+                } else {
+                    settingsIndicator.style.display = 'none';
+                }
+                
+                // Show/hide individual indicators in settings dropdown
+                document.getElementById('nameIndicator').style.display = isNameMissing ? 'inline-block' : 'none';
+                document.getElementById('emailIndicator').style.display = isEmailMissing ? 'inline-block' : 'none';
+                document.getElementById('phoneIndicator').style.display = isPhoneMissing ? 'inline-block' : 'none';
+                
+                // Password indicator always hidden for now
+                document.getElementById('passwordIndicator').style.display = 'none';
+                
+                // Highlight settings items with missing data
+                document.getElementById('nameSetting').style.backgroundColor = isNameMissing ? '#F7E4E3' : '';
+                document.getElementById('emailSetting').style.backgroundColor = isEmailMissing ? '#F7E4E3' : '';
+                document.getElementById('phoneSetting').style.backgroundColor = isPhoneMissing ? '#F7E4E3' : '';
+            }
+            
+            // After filling profile data, check for NA values
+            if (user) {
+                document.getElementById("userName").textContent = user.username || 'N/A';
+                document.getElementById("userEmail").textContent = user.email || 'N/A';
+                document.getElementById("userPhone").textContent = user.phone || 'N/A';
+                
+                let readable = "Unknown";
+                if (method === "password") readable = "ID-Password";
+                else if (method === "google") readable = "Google Accounts";
+                else if (method === "otp") readable = "Mobile OTP";
+                
+                document.getElementById("loginMethod").textContent = readable;
+                
+                // Check profile data for NA values
+                checkProfileData();
+                updateSettingsState();
+            }
+
+            // Settings dropdown functionality
+            let settingsHideTimeout;
+            
+            const showSettingsDropdown = () => {
+                clearTimeout(settingsHideTimeout);
+                settingsDropdown.style.display = "block";
+                setTimeout(() => {
+                    settingsDropdown.classList.add("active");
+                }, 10);
+                
+                // Re-check profile data each time settings dropdown is opened
+                updateSettingsState();
+                checkProfileData();
+            };
+            
+            const hideSettingsDropdown = () => {
+                settingsDropdown.classList.remove("active");
+                settingsHideTimeout = setTimeout(() => {
+                    settingsDropdown.style.display = "none";
+                }, 300);
+            };
+            
+            // Show on hover or click
+            settingsIcon.addEventListener("mouseenter", showSettingsDropdown);
+            settingsIcon.addEventListener("click", showSettingsDropdown);
+            settingsIcon.addEventListener("mouseleave", hideSettingsDropdown);
+            
+            settingsDropdown.addEventListener("mouseenter", showSettingsDropdown);
+            settingsDropdown.addEventListener("mouseleave", hideSettingsDropdown);
+
+            // Prevent settings dropdown from closing when interacting with it
+            settingsDropdown.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+            
+            // Hide settings dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!settingsDropdown.contains(e.target) && !settingsIcon.contains(e.target)) {
+                    hideSettingsDropdown();
+                }
+            });
+
+            // New function to update settings state based on login method
+            function updateSettingsState() {
+                const method = localStorage.getItem('loginMethod');
+                const emailLink = document.querySelector('#emailSetting .setting-link');
+                const emailText = emailLink.querySelector('.setting-text');
+                const phoneLink = document.querySelector('#phoneSetting .setting-link');
+                const phoneText = phoneLink.querySelector('.setting-text');
+                
+                // Reset both first
+                emailLink.classList.remove('disabled-setting');
+                phoneLink.classList.remove('disabled-setting');
+                emailText.innerHTML = 'Update my mail id';
+                phoneText.innerHTML = 'Update my Phone Number';
+                
+                // Disable email update for password/google logins
+                if (method === 'password' || method === 'google') {
+                    emailLink.removeAttribute('href');
+                    emailLink.classList.add('disabled-setting');
+                    emailText.innerHTML = 'Update my mail id <span style="font-size: 0.8em; color: #e74c3c;">(cannot change for this login)</span>';
+                }
+                
+                // Disable phone update for OTP login
+                if (method === 'otp') {
+                    phoneLink.removeAttribute('href');
+                    phoneLink.classList.add('disabled-setting');
+                    phoneText.innerHTML = 'Update my Phone Number <span style="font-size: 0.8em; color: #e74c3c;">(cannot change for OTP login)</span>';
+                }
+            }
+            
+                        
         });
          
     </script>

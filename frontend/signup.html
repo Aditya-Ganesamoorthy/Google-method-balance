@@ -46,7 +46,7 @@
 
     
     <button type="submit" id="signupSubmitBtn" disabled>Sign Up</button>
-    <p>Having an account ? <a href="index.html" class="login-btn">Login</a></p>
+    <p>Having an account ? <a href="login.html" class="login-btn">Login</a></p>
    <p id="message"></p>
     <dialog id="messageDialog">
   
@@ -205,7 +205,7 @@
 
       if (res.ok) {
         alert('Signup successful! Redirecting to login page...');
-        window.location.href = 'index.html';
+        window.location.href = 'login.html';
       } else {
         showMessage(data.message || 'Signup failed. Try again.');
       }
