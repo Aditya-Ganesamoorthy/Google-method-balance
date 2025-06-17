@@ -150,16 +150,7 @@
                 
                 setTimeout(() => {
                     document.querySelector('.logo-loader').style.display = 'none';
-                    
-                    // Show your content here
-                    const content = document.createElement('div');
-                    content.innerHTML = `
-                        <div style="text-align: center; padding: 20px;">
-                            <h1 style="color: #333; margin-bottom: 20px;">Your Content</h1>
-                            <p style="color: #666;">Page content loaded successfully</p>
-                        </div>
-                    `;
-                    document.body.appendChild(content);
+                    window.location.href = 'landing.html';
                 }, 800);
             }, 4000); // Simulate 4 second loading
         });
